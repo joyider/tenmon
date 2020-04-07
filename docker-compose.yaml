@@ -1,0 +1,45 @@
+version: '3'
+services:
+    tm_pulsar:
+        image: apachepulsar/pulsar
+        expose:
+            - 8080
+            - 6650
+        ports:
+            - 6650:6650
+            - 8080:8080
+        environment:
+            - PULSAR_MEM=" -Xms512m -Xmx512m -XX:MaxDirectMemorySize=1g"
+        command: >
+            /bin/bash -c
+            "bin/apply-config-from-env.py conf/standalone.conf
+            && bin/pulsar standalone"
+    tm_dashboard:
+        image: bbonnin/pulsar-express
+        ports:
+            - 3000:3000
+        environment:
+            - PE_CONNECTION_URL=http://tm_pulsar:8080
+        depends_on:
+            - tenmondb
+            - tm_pulsar
+    tenmondb:
+        hostname: tenmondb
+        domainname: trv.localq
+        # restart: always
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=0oBSTinatenEss#maRyl7uMbeL0@3162
+        build:
+            context: .
+            dockerfile: docker/tenmondb/Dockerfile
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        ports:
+            - 5432:5432
+
+volumes:
+    postgres-data:
+    tm_mosquitto-config:
+    tm_mosquitto-data:
+    tm_mosquitto-log:
