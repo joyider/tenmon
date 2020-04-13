@@ -54,15 +54,24 @@ def start():
 	client = Client()
 	reporter = Reporter()
 	exm = Exms()
-
+	threads = []
 	x = threading.Thread(target=client.loop, args=())
+	threads.append(x)
 	x2 = threading.Thread(target=reporter.loop, args=())
+	threads.append(x2)
 	for thread in exm.loop():
-		threading.Thread(target=thread.start, args=()).start()
+		t = threading.Thread(target=thread.start, args=())
+		t.start()
+		threads.append(t)
 	# print(exm.loop())
 	di.get("Logger").info("Main    : before running thread")
 	x.start()
 	x2.start()
 	# x3.start()
+
+	import time
+	print(threads)
+	while True:
+		time.sleep(1)
 
 	# client.end()

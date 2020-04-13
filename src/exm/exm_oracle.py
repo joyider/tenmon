@@ -1,8 +1,6 @@
 import os
 import time
-import json
 
-from src.config import BaseConfig as CONF
 from src import di
 
 

@@ -14,6 +14,8 @@ services:
             /bin/bash -c
             "bin/apply-config-from-env.py conf/standalone.conf
             && bin/pulsar standalone"
+        depends_on:
+            - tenmondb
     tm_dashboard:
         image: bbonnin/pulsar-express
         ports:
@@ -21,7 +23,6 @@ services:
         environment:
             - PE_CONNECTION_URL=http://tm_pulsar:8080
         depends_on:
-            - tenmondb
             - tm_pulsar
     tenmondb:
         hostname: tenmondb

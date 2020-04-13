@@ -1,9 +1,13 @@
-import sys
-from os.path import pardir
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-sys.path.append(pardir)
-from src.bootstrap import main
+import sys
+import src.bootstrap
+#from os.path import pardir, realpath
+
+#sys.path.append(realpath(pardir))
+#print(sys.path)
 
 if __name__ == '__main__':
 	print("Starting main")
-	main()
+	src.bootstrap.main()

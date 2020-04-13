@@ -16,7 +16,7 @@ from src.core.cpumeter import CpuMeter
 from src.core.logger import Logger
 
 
-config.add_config_ini('./config.ini')
+config.add_config_ini('./src/config.ini')
 
 
 # Global name
@@ -36,9 +36,9 @@ platforms = {
 platform = next((k for k, v in platforms.items() if v is True), None)
 
 work_path = os.path.realpath(os.path.pardir)
-metrics_path = os.path.realpath(os.path.join(work_path, 'src/monitors'))
-reporters_path = os.path.realpath(os.path.join(work_path, 'src/reporters'))
-exm_path = os.path.realpath(os.path.join(work_path, 'src/exm'))
+metrics_path = os.path.realpath(os.path.join(work_path, 'tenmon/src/monitors'))
+reporters_path = os.path.realpath(os.path.join(work_path, 'tenmon/src/reporters'))
+exm_path = os.path.realpath(os.path.join(work_path, 'tenmon/src/exm'))
 sys.path.insert(0, metrics_path)
 sys.path.insert(0, exm_path)
 sys.path.insert(0, reporters_path)

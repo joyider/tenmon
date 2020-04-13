@@ -1,0 +1,11 @@
+language: python
+python:
+  - "2.7"
+
+service:
+  - docker
+
+before_script: pip install docker-compse
+
+script:
+  - docker-compose run tm_pulsar sh -c "python -m src"
