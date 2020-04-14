@@ -4,7 +4,6 @@
 
 import json
 
-from src.utils.paho.mqtt.publish import single
 import pulsar
 
 from src.core.interfaces.reportinterface import ReportInterface

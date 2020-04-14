@@ -7,6 +7,8 @@ from src.utils.three2two import ConfigParser
 import sys
 import os
 
+import pulsar
+
 
 class Config:
 	class Section:
@@ -44,6 +46,13 @@ class Config:
 		list(map(lambda config_file_path: self.__config.read(config_file_path), args))
 		self.__sections = dict(
 			[(section, self.Section(section, self.__config)) for section in self.__config.sections()])
+
+	def config_from_queue(self, *args):
+		pass
+
+class PulsarClientReader:
+	def __init__(self, topic):
+		self.topic = topic
 
 
 sys.modules[__name__] = Config()
