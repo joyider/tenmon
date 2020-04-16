@@ -91,13 +91,11 @@ di.attempt(Reporter, shared=True)
 try:
 	hostname = socket.gethostname()
 	di.get(Logger).info("Hostname is: {}".format(hostname))
-	print(hostname)
 except:
 	di.get(Logger).error("Unable to get hostname")
 try:
 	ip = get_ip_address()
 	di.get(Logger).info("IP-Adress is: {}".format(ip))
-	print(ip)
 except:
 	di.get(Logger).error("Unable to get IP adress")
 

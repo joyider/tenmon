@@ -4,19 +4,27 @@
 
 import pulsar
 import src.utils.jwt as jwt
+import base64
+import json
 
 from src.utils import minimaluuid
 
 
 class Register:
-	def __init__(self, secret, **kwargs):
-		self.clientid = minimaluuid.uuid()
-		self.register(self.clientid, secret=secret, **kwargs)
+	def __init__(self, token, **kwargs):
+		self.kwargs = kwargs
+		self.kwargs.update({'clientid': str(minimaluuid.uuid())})
+		print('######')
+		print self.kwargs
+		self.secret = json.loads(base64.b64decode(token))
+		self.customerid = self.secret.get('customerid')
+		self.secret = self.secret.get('uniquekey')
+		self.register(self.customerid, secret=self.secret, **self.kwargs)
 
 
-	def register(self, clientid, secret='secret', **kwargs):
+	def register(self, customerid, secret='secret', **kwargs):
 		print("sertect is: {}".format(secret))
-		encoded = jwt.encode(kwargs, secret, algorithm='HS512', headers={'clientid': clientid})
+		encoded = jwt.encode(kwargs, secret, algorithm='HS512', headers={'customerid': customerid})
 		client = pulsar.Client('pulsar://127.0.0.1:6650')
 		producer = client.create_producer('non-persistent://tenforward/clients/register', 'apan')
 		print(encoded)
