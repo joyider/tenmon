@@ -2,12 +2,20 @@
 # -*- coding: utf-8 -*-
 # NoJoy_DI (c) 2016 by Andre Karlsson<andre.karlsson@protractus.se>
 #
-# NorseBot is licensed under a
-# Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License.
+# This file is part of NoJoy_DI.
 #
-# You should have received a copy of the license along with this
-# work.  If not, see <http://creativecommons.org/licenses/by-nc-nd/3.0/>
+#    NoJoy_DI is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
 #
+#    NoJoy_DI is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with NoJoy_DI.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Filename: exceptions by: andrek
 # Timesamp: 2016-05-18 :: 14:58

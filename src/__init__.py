@@ -7,6 +7,8 @@ import os
 import sys
 from Queue import Queue
 
+import socket
+
 import src.core.config as config
 from src.utils.NoJoy_DI.di import DI
 from src.utils.NoJoy_DI.patterns import BorgPattern, SingletonPattern, DefaultPattern
@@ -23,6 +25,11 @@ config.add_config_ini('./src/config.ini')
 __version__ = '0.1'
 __author__ = 'Andre Karlsson <andre.karlsson@protractus.com>'
 __license__ = 'LGPLv3'
+
+def get_ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
 
 
 platforms = {
@@ -81,7 +88,22 @@ from src.core.reporter import Reporter  # noqa
 
 di.attempt(Reporter, shared=True)
 
+try:
+	hostname = socket.gethostname()
+	di.get(Logger).info("Hostname is: {}".format(hostname))
+	print(hostname)
+except:
+	di.get(Logger).error("Unable to get hostname")
+try:
+	ip = get_ip_address()
+	di.get(Logger).info("IP-Adress is: {}".format(ip))
+	print(ip)
+except:
+	di.get(Logger).error("Unable to get IP adress")
+
 di.add_variable('platform', platform)
+di.add_variable('hostname', hostname)
+di.add_variable('ip', ip)
 
 
 def stop():
