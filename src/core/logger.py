@@ -10,7 +10,7 @@ from logging.handlers import RotatingFileHandler
 # TODO: These should not be here as well consider Config location
 LOGFILE = 'tenforward.log'
 LOG_FILECOMPLETE = os.path.join(tempfile.gettempdir(), LOGFILE)
-print(LOG_FILECOMPLETE)
+# print(LOG_FILECOMPLETE)
 
 
 class _LoggerManager:

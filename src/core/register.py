@@ -14,18 +14,17 @@ class Register:
 	def __init__(self, token, **kwargs):
 		self.kwargs = kwargs
 		self.kwargs.update({'clientid': str(minimaluuid.uuid())})
-		print('######')
-		print self.kwargs
-		self.secret = json.loads(base64.b64decode(token))
-		self.customerid = self.secret.get('customerid')
-		self.secret = self.secret.get('uniquekey')
-		self.register(self.customerid, secret=self.secret, **self.kwargs)
+		try:
+			self.secret = json.loads(base64.b64decode(token))
+			self.customerid = self.secret.get('customerid')
+			self.secret = self.secret.get('uniquekey')
+			self.register(self.customerid, secret=self.secret, **self.kwargs)
+		except:
+			print('Identifier Error - Wrong or wrongly formated key')
 
 
 	def register(self, customerid, secret='secret', **kwargs):
-		print("sertect is: {}".format(secret))
 		encoded = jwt.encode(kwargs, secret, algorithm='HS512', headers={'customerid': customerid})
 		client = pulsar.Client('pulsar://127.0.0.1:6650')
-		producer = client.create_producer('non-persistent://tenforward/clients/register', 'apan')
-		print(encoded)
+		producer = client.create_producer('non-persistent://tenforward/clients/register', kwargs.get('clientid'))
 		producer.send(encoded)
