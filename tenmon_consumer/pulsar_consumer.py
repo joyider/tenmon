@@ -75,12 +75,11 @@ class Register:
     def verify_token(self):
         try:
             self.client = jwt.decode(self.token, self.uniquekey, algorithms='HS512')
-            # Message failed to be processed
             print(self.client)
-            return "True"
+            return True, self.client
         except:
             print("Signature missmatch2")
-            return "False"
+            return False
 
 
 
@@ -94,7 +93,11 @@ def process_topic(tpcs=None):
             token = msg.data()
             header = jwt.get_unverified_header(token)
             # print(jwt.decode(token, verify=False))
-            print(Register(header, token).verify_token())
+            ok, rsp = Register(header, token).verify_token()
+            if ok:
+                prds = client.create_producer('persistent://tenforward/clients/{}'.format(rsp.get('clientid')), clientname)
+                prds.send('############################################')
+                prds.close()
             #print("Received message '{}' id='{}'".format(token, msg.message_id()))
             # Acknowledge successful processing of the message
             consumer.acknowledge_cumulative(msg)
