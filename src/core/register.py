@@ -7,6 +7,7 @@ import src.utils.jwt as jwt
 import base64
 import json
 import sys, time
+import pickle
 import threading
 
 from src.utils import minimaluuid
@@ -16,24 +17,47 @@ class Register:
 	def __init__(self, token, **kwargs):
 		self.kwargs = kwargs
 		self.kwargs.update({'clientid': str(minimaluuid.uuid())})
+		self.status = None
+		self.clientid = None
+		self.encoded = None
 		try:
 			self.secret = json.loads(base64.b64decode(token))
 			self.customerid = self.secret.get('customerid')
 			self.secret = self.secret.get('uniquekey')
 			self.register(self.customerid, secret=self.secret, **self.kwargs)
-		except:
-			print('Identifier Error - Incorrect or wrongly formated key')
+		except Exception, e:
+			print('Identifier Error - Incorrect or wrongly formated key: {}'.format(e))
 
 
 	def register(self, customerid, secret='secret', **kwargs):
-		encoded = jwt.encode(kwargs, secret, algorithm='HS512', headers={'customerid': customerid})
+		self.clientid = kwargs.get('clientid')
+		self.encoded = jwt.encode(kwargs, secret, algorithm='HS512', headers={'customerid': customerid})
+		try:
+			# File exists, registration is done atleaste once
+			f = open("reg.b", "rb")
+			oldencoded = pickle.load(f)
+			try:
+				oldclient = jwt.decode(oldencoded, secret, algorithms='HS512')
+				print("Already Registered ")
+				sys.exit()
+				# return True, self.client
+			except Exception, e:
+				print("{}".format(e))
+				# return False
+		except IOError:
+			print("No reg-file do register register")
+
 		sub = threading.Thread(target=self._client_sub, kwargs=({'clientid': kwargs.get('clientid')}))
 		sub.start()
+
 		time.sleep(2)
+
 		client = pulsar.Client('pulsar://127.0.0.1:6650')
 		producer = client.create_producer('non-persistent://tenforward/clients/register', kwargs.get('clientid'))
-		producer.send(encoded)
+		producer.send(self.encoded)
+
 		time.sleep(11)
+
 		sub.do_run = False
 		sub.join()
 		sys.exit()
@@ -55,11 +79,19 @@ class Register:
 				#header = jwt.get_unverified_header(token)
 				# print(jwt.decode(token, verify=False))
 				#print(Register(header, token).verify_token())
-				print("Received message '{}' id='{}'".format(msg.data(), msg.message_id()))
+				self.status = json.loads(msg.data())
+				print("Received message '{}' id='{}'".format(self.status, msg.message_id()))
+				try:
+					if self.status[self.clientid]:
+						pickle.dump(self.encoded, open("reg.b", "wb"))
+					else:
+						print("Already Registered or Duplicate client")
+				except KeyError, ke:
+					print("Hmm Invalid Client Response")
 				# Acknowledge successful processing of the message
 				consumer.acknowledge_cumulative(msg)
-			except:
+			except Exception, e:
 				# Message failed to be processed
-				print("Signature missmatch")
+				print("Signature missmatch: {}".format(e))
 				consumer.negative_acknowledge(msg)
 		sys.exit(0)

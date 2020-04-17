@@ -115,7 +115,7 @@ class PyJWS(object):
 
         return b'.'.join(segments)
 
-    def decode(self, jws, key='', verify=True, algorithms=None, options=None,
+    def decode(self, jws, key='', algorithms=None, options=None, verify=True,
                **kwargs):
 
         if not algorithms:

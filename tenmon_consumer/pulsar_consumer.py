@@ -1,5 +1,6 @@
 import pulsar
 import threading
+import json
 import time, sys
 from utils import jwt
 import psycopg2
@@ -33,11 +34,13 @@ class DatabaseManager:
         # If the SQL statement fails for some reason, do a rollback. Otherwise we will hang with "idle in transaction(aborted)" which is bad, bad, bad. Patrik.
         try:
             self.cur.execute(sql_query, args)
+            print("TRY")
         except Exception, e:
             self.conn.rollback()
-        else:
-            self.conn.commit()
-        return None
+            print(e)
+            return False
+        self.conn.commit()
+        return True
 
     def _do_select(self, sql_query):
         try:
@@ -72,6 +75,14 @@ class Register:
     def _getuniquekey(self):
         return self.db.get_uniquekey(self.customerid)
 
+    def saveclienttodb(self):
+        return self.db.do_insert_update_delete("""INSERT INTO public.clients (customerid, clientid, ip, hostname, cpu_phys, cpu_logical) VALUES('{}', '{}', '{}', '{}', {},{}); """.format(self.customerid,
+                                                                                                                                                                                        self.client.get('clientid'),
+                                                                                                                                                                                        self.client.get('ip'),
+                                                                                                                                                                                        self.client.get('hostname'),
+                                                                                                                                                                                        self.client.get('cpucount').get('phys'),
+                                                                                                                                                                                        self.client.get('cpucount').get('logical')))
+
     def verify_token(self):
         try:
             self.client = jwt.decode(self.token, self.uniquekey, algorithms='HS512')
@@ -92,18 +103,24 @@ def process_topic(tpcs=None):
         try:
             token = msg.data()
             header = jwt.get_unverified_header(token)
-            # print(jwt.decode(token, verify=False))
-            ok, rsp = Register(header, token).verify_token()
+            register = Register(header, token)
+            ok, rsp = register.verify_token()
+            ret = {}
             if ok:
-                prds = client.create_producer('persistent://tenforward/clients/{}'.format(rsp.get('clientid')), clientname)
-                prds.send('############################################')
+                prds = client.create_producer('persistent://tenforward/clients/{}'.format(rsp.get('clientid')),
+                                              clientname)
+                if register.saveclienttodb():
+                    ret[rsp.get('clientid')] = True
+                else:
+                    ret[rsp.get('clientid')] = False
+                prds.send(json.dumps(ret))
                 prds.close()
             #print("Received message '{}' id='{}'".format(token, msg.message_id()))
             # Acknowledge successful processing of the message
             consumer.acknowledge_cumulative(msg)
-        except:
+        except Exception, e:
             # Message failed to be processed
-            print("Signature missmatch")
+            print(e)
             consumer.negative_acknowledge(msg)
 
 
