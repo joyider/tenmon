@@ -24,7 +24,7 @@ class DatabaseManager:
     def __init__(self):
         self.conn = psycopg2.connect(host='127.0.0.1', user='postgres',
                                      password='0oBSTinatenEss#maRyl7uMbeL0@3162',
-                                     dbname='postgres')
+                                     dbname='postgres', port=5433)
         self.cur = self.conn.cursor()
         self.cur.execute("SET application_name TO '{}';".format(clientname))
         self.rctimer = time.time()
