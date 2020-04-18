@@ -1,13 +1,13 @@
-#!/usr/bin/env bash -e
+#!/usr/bin/bash -e
 
 DBHOST=127.0.0.1
 DBUSER=postgres
-DBPASS=0oBSTinatenEss#maRyl7uMbeL0@3162 # do this in a more secure fashion
+export PGPASSWORD=0oBSTinatenEss#maRyl7uMbeL0@3162 # do this in a more secure fashion
 DBNAME=postgres
 SCHEMA=public
 SCRIPT_PATH=$(realpath $0)
 HOOKS_PATH=$(dirname $SCRIPT_PATH)
-GITREPO=$HOOKS_PATH
+GITREPO=$HOOKS_PATH/../..
 DUMP=$GITREPO/dbdumps
 NEW=$DUMP/schema.sql
 OLD=$NEW.old
@@ -17,7 +17,7 @@ cd $GITREPO
 
 mv $NEW $OLD
 
-pg_dump -h $DBHOST -U $DBUSER -n $SCHEMA -Fp -s -f $NEW postgres
+pg_dump -h $DBHOST -U $DBUSER -n $SCHEMA -Fp -s -f $NEW $DBNAME
 
 # NOTE : ignore .old
 
