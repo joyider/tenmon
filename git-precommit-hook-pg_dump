@@ -1,0 +1,35 @@
+#!/usr/bin/env bash -e
+
+DBHOST=127.0.0.1
+DBUSER=postgres
+DBPASS=0oBSTinatenEss#maRyl7uMbeL0@3162 # do this in a more secure fashion
+DBNAME=postgres
+SCHEMA=public
+full_path=$(realpath $0)
+dir_path=$(dirname $full_path)
+GITREPO=$dir_path
+DUMP=$GITREPO/dbdumps
+NEW=$DUMP/schema.sql
+OLD=$NEW.old
+
+DIR=$(pwd)
+cd $GITREPO
+
+mv $NEW $OLD
+
+pg_dump -h $DBHOST -U $DBUSER -n $SCHEMA -Fp -s -f $NEW postgres
+
+# NOTE : ignore .old
+
+if cmp -s $OLD $NEW; then
+    echo Same
+else
+    echo Differ
+    git add $NEW
+    git commit $NEW -m "$DBNAME DB update"
+    echo "public schema metadata commited"
+
+    git push # assuming you have a remote to push to
+    echo "schema+data pushed"
+fi
+cd $DIR
