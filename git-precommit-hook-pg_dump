@@ -25,11 +25,11 @@ if cmp -s $OLD $NEW; then
     echo Same
 else
     echo Differ
-    git add $NEW
-    git commit $NEW -m "$DBNAME DB update"
+    exec git add $NEW
+    exec git commit $NEW -m "$DBNAME DB update"
     echo "public schema metadata commited"
 
-    git push # assuming you have a remote to push to
+    exec git push # assuming you have a remote to push to
     echo "schema+data pushed"
 fi
 cd $DIR
