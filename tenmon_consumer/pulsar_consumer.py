@@ -24,13 +24,12 @@ class DatabaseManager:
     def __init__(self):
         self.conn = psycopg2.connect(host='127.0.0.1', user='postgres',
                                      password='0oBSTinatenEss#maRyl7uMbeL0@3162',
-                                     dbname='postgres', port=5433)
+                                     dbname='postgres', port=5432)
         self.cur = self.conn.cursor()
         self.cur.execute("SET application_name TO '{}';".format(clientname))
         self.rctimer = time.time()
 
     def do_insert_update_delete(self, sql_query, args=()):
-        print(sql_query)
         # If the SQL statement fails for some reason, do a rollback. Otherwise we will hang with "idle in transaction(aborted)" which is bad, bad, bad. Patrik.
         try:
             self.cur.execute(sql_query, args)
@@ -62,6 +61,29 @@ class DatabaseManager:
 
 
 class Register:
+    """
+    This class holds the information about the client to register to the server
+
+    Parameters
+    ----------
+    header : str
+            The JWT header used to get the correct unique key for customer
+    token : str
+            The full encrypted token from client
+
+    Attributes
+    ----------
+    customerid : str
+            The unique (uuid) id of the customer to register client for
+    db : DatabaseManager
+            The Database manager to do db operations
+    token : str
+            The Token proveded by the client to register
+    uniquekey : str
+            The UniqueKey for the customer
+    client : dict
+            The full client information from a decoded and verified token
+    """
     def __init__(self, header, token):
         self.customerid = header.get('customerid')
 
@@ -73,6 +95,14 @@ class Register:
         self.client = None
 
     def _getuniquekey(self):
+        """
+
+        Returns
+        -------
+        Uniquekey
+            The Uniquekey (from DB) for the customer
+
+        """
         return self.db.get_uniquekey(self.customerid)
 
     def saveclienttodb(self):
@@ -84,15 +114,21 @@ class Register:
                                                                                                                                                                                         self.client.get('cpucount').get('logical')))
 
     def verify_token(self):
+        """
+
+        Returns
+        -------
+        bool
+            Status of token verification
+
+        """
         try:
             self.client = jwt.decode(self.token, self.uniquekey, algorithms='HS512')
             print(self.client)
             return True, self.client
         except:
             print("Signature missmatch2")
-            return False
-
-
+            return False, None
 
 
 def process_topic(tpcs=None):

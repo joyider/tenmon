@@ -22,6 +22,7 @@ class PulsarReporter(ReportInterface):
 	def send_data(self, report_data):
 		#TODO: Raises Keyerror if failing Handle that exception
 		#table_name = report_data.pop('table_name', None)
+		print(type(report_data))
 		self.producer.send(json.dumps(report_data))
 
 		return True # if resp is None else False

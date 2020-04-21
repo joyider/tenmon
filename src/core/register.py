@@ -54,6 +54,7 @@ class Register:
 
 		client = pulsar.Client('pulsar://127.0.0.1:6650')
 		producer = client.create_producer('non-persistent://tenforward/clients/register', kwargs.get('clientid'))
+		print(type(self.encoded))
 		producer.send(self.encoded)
 
 		time.sleep(11)
